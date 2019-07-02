@@ -213,7 +213,7 @@ void AP_LQR_Control::update_waypoint(const struct Location &prev_WP, const struc
     Vector2f _groundspeed_vector = _ahrs.groundspeed_vector();
 
     // update _target_bearing_cd
-    _target_bearing_cd = get_bearing_cd(_current_loc, next_WP);
+    _target_bearing_cd = _current_loc.get_bearing_to(next_WP);
 
     //Calculate groundspeed
     float groundSpeed = _groundspeed_vector.length();
@@ -225,12 +225,12 @@ void AP_LQR_Control::update_waypoint(const struct Location &prev_WP, const struc
     }
 
     // Calculate the NE position of WP B relative to WP A
-    Vector2f AB = location_diff(prev_WP, next_WP);
+    Vector2f AB = prev_WP.get_distance_NE(next_WP);
 
     // Check for AB zero length and track directly to the destination
     // if too small
     if (AB.length() < 1.0e-6f) {
-        AB = location_diff(_current_loc, next_WP);
+        AB = _current_loc.get_distance_NE(next_WP);
         if (AB.length() < 1.0e-6f) {
             AB = Vector2f(cosf(get_yaw_rad()), sinf(get_yaw_rad()));
         }
@@ -238,7 +238,7 @@ void AP_LQR_Control::update_waypoint(const struct Location &prev_WP, const struc
     AB.normalize();
 
     // Calculate the NE position of the aircraft relative to WP A
-    Vector2f A_air = location_diff(prev_WP, _current_loc);
+    Vector2f A_air = prev_WP.get_distance_NE(_current_loc);
 
     // calculate distance to target track, for reporting
     _crosstrack_error = (A_air % AB)/(AB.length());
@@ -255,7 +255,7 @@ void AP_LQR_Control::update_waypoint(const struct Location &prev_WP, const struc
     
     //Calculate the approach velocity towards path
     float si = get_gs_angle_cd()*0.01;
-    float si_p = (get_bearing_cd(prev_WP,next_WP))*0.01;
+    float si_p = (prev_WP.get_bearing_to(next_WP))*0.01;
     float temp_sin=sinf(radians(si - si_p));
     float v_d= groundSpeed * temp_sin;
     
@@ -289,7 +289,7 @@ void AP_LQR_Control::update_loiter(const struct Location &center_WP, float radiu
     // stable at high altitude
     radius = loiter_radius(radius);
     float groundSpeed=_groundspeed_vector.length();
-    Vector2f location_difference=location_diff(center_WP, _current_loc);
+    Vector2f location_difference = center_WP.get_distance_NE(_current_loc);
     
     //Calculate rate change of heading of path
     float si_p_dot=groundSpeed/location_difference.length();
@@ -301,7 +301,7 @@ void AP_LQR_Control::update_loiter(const struct Location &center_WP, float radiu
     float u =0;
     
     // update _target_bearing_cd
-    _target_bearing_cd = get_bearing_cd(center_WP,_current_loc);
+    _target_bearing_cd = center_WP.get_bearing_to(_current_loc);
     //Compute adaptive gains
     float q1= sqrtf((float)((_max_xtrack*0.01)/(fabsf((_max_xtrack*0.01)-_crosstrack_error))));
     
