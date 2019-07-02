@@ -1,3 +1,4 @@
+
 #pragma once
 
 /// @file    AP_LQR_Control.h
@@ -5,7 +6,7 @@
 /// AP_Navigation class
 
 /*
- * Written by Akshath Singhal 2018
+ * Written by Akshath Singhal 2019
  *
  */
 
@@ -92,8 +93,8 @@ private:
     Trajectory tracking LQR parameters
     */
     
-    // maximum permissible cross-track
-    AP_Int16 _max_xtrack;
+    // exponential gain
+    AP_Float _k_val;
     
     // q2 multiplicative factor
     AP_Int16 _q2_val;
