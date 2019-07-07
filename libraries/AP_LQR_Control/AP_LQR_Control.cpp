@@ -42,6 +42,9 @@ const AP_Param::GroupInfo AP_LQR_Control::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("Q1_VAL",   4, AP_LQR_Control, _q1_val, 0),
 
+    // @Param: TAR_SPD
+    // @DisplayName: VALUE of target speed
+    AP_GROUPINFO("TAR_SPD",   5, AP_LQR_Control, _target_speed, 0),
     AP_GROUPEND
 };
 
@@ -253,7 +256,7 @@ void AP_LQR_Control::update_waypoint(const struct Location &prev_WP, const struc
     float temp_sin=sinf(radians(si - si_p));
     float v_d= groundSpeed * temp_sin;
 
-    float cos_term = cosf(radians(si-si_p));
+    //float cos_term = cosf(radians(si-si_p));
 
     //Caluclate adaptive gains
     //float q1= sqrtf(float((_max_xtrack*0.01)/(fabsf((_max_xtrack*0.01)-_crosstrack_error))));
@@ -264,9 +267,9 @@ void AP_LQR_Control::update_waypoint(const struct Location &prev_WP, const struc
         q1 = _q1_val*0.01;
     }
 
-    float p12 = float(q1/fabs(cos_term));    
+    //float p12 = float(q1/fabs(cos_term));    
     //hal.console->printf("cos term :%f, si : %f, si_p : %f \n",cos_term,si,si_p);
-    float p22 = sqrtf((float)(2*p12 + _q2_val*0.01))/(cos_term);
+    //float p22 = sqrtf((float)(2*p12 + _q2_val*0.01))/(cos_term);
     //float u = -(_crosstrack_error*p12*cos_term + p22*v_d*cos_term);
 
     //hal.console->printf("p12 :%f, p22 : %f, u : %f \n",p12,p22,u);
@@ -329,7 +332,13 @@ void AP_LQR_Control::update_loiter(const struct Location &center_WP, float radiu
     Vector2f location_difference=location_diff(center_WP, _current_loc);
     
     //Calculate rate change of heading of path
-    float si_p_dot=groundSpeed/location_difference.length();
+    //float si_p_dot = groundSpeed/location_difference.length();
+
+    //if (_tar_spd.x != 0 || _tar_spd.y != 0)
+    //{
+    float si_p_dot = ((( location_difference.x * ( _groundspeed_vector.y - _tar_spd.y )) - ( location_difference.y * ( _groundspeed_vector.x - _tar_spd.x ))) / ( location_difference.length() * location_difference.length() ));
+    //}
+
     _crosstrack_error = location_difference.length() - radius;
     
     //Set minimum turn radius equal to twice the groundspeed
