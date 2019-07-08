@@ -87,7 +87,8 @@ private:
 
     float _nav_bearing;
 
-    AP_Float _target_speed;
+    AP_Float _tar_spd_x;
+    AP_Float _tar_spd_y;
 
     /* 
     Trajectory tracking LQR parameters

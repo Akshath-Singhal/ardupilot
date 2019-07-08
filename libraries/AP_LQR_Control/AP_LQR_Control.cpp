@@ -44,7 +44,9 @@ const AP_Param::GroupInfo AP_LQR_Control::var_info[] = {
 
     // @Param: TAR_SPD
     // @DisplayName: VALUE of target speed
-    AP_GROUPINFO("TAR_SPD",   5, AP_LQR_Control, _target_speed, 0),
+    AP_GROUPINFO("TAR_SPD_x",   5, AP_LQR_Control, _tar_spd_x, 0),
+
+    AP_GROUPINFO("TAR_SPD_Y",   6, AP_LQR_Control, _tar_spd_y, 0),
     AP_GROUPEND
 };
 
@@ -336,7 +338,7 @@ void AP_LQR_Control::update_loiter(const struct Location &center_WP, float radiu
 
     //if (_tar_spd.x != 0 || _tar_spd.y != 0)
     //{
-    float si_p_dot = ((( location_difference.x * ( _groundspeed_vector.y - _tar_spd.y )) - ( location_difference.y * ( _groundspeed_vector.x - _tar_spd.x ))) / ( location_difference.length() * location_difference.length() ));
+    float si_p_dot = ((( location_difference.x * ( _groundspeed_vector.y - _tar_spd_y )) - ( location_difference.y * ( _groundspeed_vector.x - _tar_spd_x ))) / ( location_difference.length() * location_difference.length() ));
     //}
 
     _crosstrack_error = location_difference.length() - radius;
